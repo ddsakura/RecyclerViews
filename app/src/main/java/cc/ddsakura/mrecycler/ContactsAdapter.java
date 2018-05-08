@@ -2,6 +2,8 @@ package cc.ddsakura.mrecycler;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.recyclerview.extensions.ListAdapter;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,14 +12,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
+public class ContactsAdapter extends ListAdapter<Contact, ContactsAdapter.ViewHolder> {
 
-public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHolder> {
+    private int mViewType;
 
-    private List<Contact> mContacts;
-
-    public ContactsAdapter() {
+    ContactsAdapter(int viewType, @NonNull DiffUtil.ItemCallback<Contact> diffCallback) {
+        super(diffCallback);
+        mViewType = viewType;
     }
 
     @NonNull
@@ -36,9 +37,14 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
     }
 
     @Override
+    public int getItemViewType(int position) {
+        return mViewType;
+    }
+
+    @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         Log.d("ContactsAdapter", "onBindViewHolder");
-        Contact contact = mContacts.get(position);
+        Contact contact = getItem(position);
 
         // Set item views based on your views and data model
         TextView textView = viewHolder.nameTextView;
@@ -48,23 +54,13 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         button.setEnabled(contact.isOnline());
     }
 
-    @Override
-    public int getItemCount() {
-        return mContacts.size();
-    }
-
-    public void updateData(ArrayList<Contact> data) {
-        mContacts = data;
-        notifyDataSetChanged();
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView;
         Button messageButton;
 
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             // Stores the itemView in a public final member variable that can be used
             // to access the context from any ViewHolder instance.
             super(itemView);
